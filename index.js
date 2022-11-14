@@ -9,21 +9,13 @@ function createEmployeeRecord(arr){
     }
     return obj;
 };
+const andrew = createEmployeeRecord(['andrew', 'smit', 'mr.', 35]);
 
 function createEmployeeRecords(arr){
-    newArr = [];
-    for (employee of arr){
-        newArr.push(createEmployeeRecord(employee));
-    }; 
-    console.log(newArr)
-    return newArr; 
+    let newArr = arr.map(emp => createEmployeeRecord(emp));
+    // console.log(newArr);
+    return newArr;
 };
-
-// let testArr = [['kailee', 'selzer', 'mrs.', 30],['andrew', 'smit', 'mr.', 30]];
-// // // console.log(testArr);
-// createEmployeeRecords(testArr);
-let andrew = createEmployeeRecord(['andrew', 'smit', 'mr.', 30])
-// console.log(andrew);
 
 
 
@@ -34,8 +26,10 @@ function createTimeInEvent(obj, dateStr){
         date: findDate(dateStr)
     });
     return obj;
+    // console.log(obj);
 };
-createTimeInEvent(andrew,"2022-11-09 0600");
+createTimeInEvent(andrew,"2022-11-07 0600");
+createTimeInEvent(andrew,"2022-11-09 0800");
 
 
 function createTimeOutEvent(obj, dateStr){
@@ -47,12 +41,14 @@ function createTimeOutEvent(obj, dateStr){
     return obj;
 };
 
-createTimeOutEvent(andrew,"2022-11-09 1200");
-console.log(andrew);
+createTimeOutEvent(andrew,"2022-11-07 1200");
+createTimeOutEvent(andrew,"2022-11-09 1000");
+// console.log(andrew);
+
 
 
 function findHour(str){
-    return str.substring(11,13);
+    return parseInt(str.substring(11));
 };
 
 function findDate(str){
@@ -60,17 +56,53 @@ function findDate(str){
 };
 
 function hoursWorkedOnDate(obj, dateStr){
-    for (elem of obj.timeInEvents){
-       let idx = elem.findIndex((obj, index)=>{
-            if(obj.timeInEvents.date === findDate(dateStr)){
-                return index;
-            }});
-        }
-    let start = obj.timeInEvents[idx].hour;
-    let end = obj.timeOutEvents[idx].hour;
-    return end - start;
-    
+    let dateWorked = findDate(dateStr);
+    // console.log(dateWorked);
+    for (let i=0; i<obj.timeInEvents.length; i++){
+        // console.log(obj.timeInEvents[i].date);
+       if(obj.timeInEvents[i].date === dateWorked){
+        let hours = obj.timeOutEvents[i].hour - obj.timeInEvents[i].hour
+        return hours /100;
+       }
+    } 
 };
 
+function wagesEarnedOnDate(obj, dateStr){
+    let hours = hoursWorkedOnDate(obj,dateStr);
+    return hours * obj.payPerHour;
+}
 
-hoursWorkedOnDate()
+function allWagesFor(obj){
+    let total = 0;
+    for (let i=0; i<obj.timeInEvents.length; i++){
+        let date = obj.timeInEvents[i].date;
+        let dayWages = wagesEarnedOnDate(obj, date)
+        total +=dayWages
+    } 
+    return total;
+}
+
+function calculatePayroll(arr){
+    let total = 0;
+    for (const employee of arr){
+        total += allWagesFor(employee)
+    } 
+    return total;
+}
+
+
+
+
+
+
+// const allWagesFor = function () {
+//     const eligibleDates = this.timeInEvents.map(function (e) {
+//         return e.date
+//     })
+
+//     const payable = eligibleDates.reduce(function (memo, d) {
+//         return memo + wagesEarnedOnDate.call(this, d)
+//     }.bind(this), 0) // <== Hm, why did we need to add bind() there? We'll discuss soon!
+
+//     return payable
+// }
